@@ -10,8 +10,8 @@ class MainWindow(QtWidgets.QDialog):
         self.d = None
         self.n = None
         self.e = None
-
-        self.layout = QtWidgets.QVBoxLayout(self)
+        self.resize(300,200)
+        self.layout = QtWidgets.QFormLayout(self)
         self.setLayout(self.layout)
         self.select_combo = QtWidgets.QComboBox()
         self.site_edit = QtWidgets.QLineEdit()
@@ -23,13 +23,15 @@ class MainWindow(QtWidgets.QDialog):
         self.save_button = QtWidgets.QPushButton("Save")
         self.load_button = QtWidgets.QPushButton("Load")
         self.delete_button = QtWidgets.QPushButton("Delete")
-
-        self.layout.addWidget(self.select_combo)
-        self.layout.addWidget(self.load_button)
-        self.layout.addWidget(self.delete_button)
-        self.layout.addWidget(self.site_edit)
-        self.layout.addWidget(self.user_edit)
-        self.layout.addWidget(self.pass_edit)
+        
+        self.h_layout = QtWidgets.QHBoxLayout()
+        self.layout.addRow("Load Creds: ", self.select_combo)
+        self.layout.addRow(self.h_layout)
+        self.h_layout.addWidget(self.load_button)
+        self.h_layout.addWidget(self.delete_button)
+        self.layout.addRow("Site: ",self.site_edit)
+        self.layout.addRow("Username: ",self.user_edit)
+        self.layout.addRow("Password: ", self.pass_edit)
 
         self.layout.addWidget(self.save_button)
 
