@@ -1,5 +1,7 @@
 import sys
 import json
+import pandas as pd
+from ast import literal_eval
 from PySide2 import QtWidgets, QtGui, QtCore
 from keygen import KeyGen
 from encyrption import Encryption
@@ -42,37 +44,34 @@ class MainWindow(QtWidgets.QDialog):
         self.get_options()
     
     def delete_creds(self):
+        
         row = self.select_combo.currentIndex()
         site = self.select_combo.itemText(row)
+        if not site:
+            return
         self.select_combo.removeItem(row)
-        with open("creds.json","r") as f:
-            creds = json.load(f)
-        index = [cred.get("site") for cred in  creds].index(site)
-        creds.pop(index)
-
-        with open("creds.json", "w") as f:
-            json.dump(creds,f)
-        
+        df = pd.read_csv("data.csv", index_col=0)
+        df = df.drop(site)
+        df.to_csv("data.csv")  
     
     def get_options(self):
-        with open("creds.json","r") as f:
-            creds = json.load(f)
-        self.select_combo.addItems(cred.get("site") for cred in creds)
-    
+        df = pd.read_csv("data.csv", index_col=0)
+        items = df["site"].values.tolist()
+        self.select_combo.addItems(items)
+      
     def load_creds(self):
         self.verify_keygen()
         e = Encryption(self.d,self.n,self.e)
         site = self.select_combo.itemText(self.select_combo.currentIndex())
-        with open("creds.json","r") as f:
-            creds = json.load(f)
-            for cred in creds:
-                if cred.get("site") == site:
-                    passw = cred.get("password")
-                    user = cred.get("username")
-                    break
+        if not site:
+            return
+        df = pd.read_csv("data.csv", index_col=0)
+        user = df.at[site, "username"]
+        passw = df.at[site, "password"]
+       
         self.site_edit.setText(site)
-        self.user_edit.setText(e.decrypt(user))
-        self.pass_edit.setText(e.decrypt(passw))
+        self.user_edit.setText(e.decrypt(literal_eval(user)))
+        self.pass_edit.setText(e.decrypt(literal_eval(passw)))
         
 
     def save_creds(self):
@@ -85,12 +84,10 @@ class MainWindow(QtWidgets.QDialog):
         e = Encryption(self.d,self.n,self.e)
         user = e.encrypt(self.user_edit.text())
         passw = e.encrypt(self.pass_edit.text())
-        with open("creds.json","r") as f:
-            creds = json.load(f)
-            creds.append({"site" : self.site_edit.text(), "username" : user, "password": passw})
-        
-        with open("creds.json", "w") as f:
-            json.dump(creds,f)
+
+        df = pd.read_csv("data.csv", index_col=0)
+        df.loc[self.site_edit.text()]=[self.site_edit.text(),user, passw]
+        df.to_csv("data.csv")
         
         self.select_combo.addItem(self.site_edit.text())
 
