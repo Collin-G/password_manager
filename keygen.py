@@ -7,7 +7,7 @@ class KeyGen():
         self.n = None
         self.phi = self.get_phi(10000,15000)
         self.e =  self.get_public()
-        gcd, self.d, y = self.euler_extended(self.e, self.phi)
+        gcd, self.d, y = self.euclid_extended(self.e, self.phi)
         self.write_to_json()
     
     def write_to_json(self):
@@ -34,10 +34,10 @@ class KeyGen():
             p = random.randint(min_v, max_v)
         return p
     
-    def euler_extended(self,e, phi):
+    def euclid_extended(self,e, phi):
         if e == 0 :
             return phi,0,1     
-        gcd,x1,y1 = self.euler_extended(phi%e, e)
+        gcd,x1,y1 = self.euclid_extended(phi%e, e)
         d = y1 - (phi//e) * x1
         y = x1
         return gcd, d, y

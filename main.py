@@ -76,8 +76,6 @@ class MainWindow(QtWidgets.QDialog):
 
     def save_creds(self):
         items = [self.select_combo.itemText(i) for i in range(self.select_combo.count())]
-        if self.site_edit.text() in items:
-            return
         self.verify_keygen()
         if not (self.site_edit.text() and self.user_edit.text() and self.pass_edit.text()):
             return
@@ -88,8 +86,8 @@ class MainWindow(QtWidgets.QDialog):
         df = pd.read_csv("data.csv", index_col=0)
         df.loc[self.site_edit.text()]=[self.site_edit.text(),user, passw]
         df.to_csv("data.csv")
-        
-        self.select_combo.addItem(self.site_edit.text())
+        if self.site_edit.text() not in items:
+            self.select_combo.addItem(self.site_edit.text())
 
 
     def verify_keygen(self):
